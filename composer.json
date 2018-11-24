@@ -1,10 +1,11 @@
 {
   "name": "phpgears/event-async",
-  "description": "Async CQRS",
+  "description": "Async decorator for Event bus",
   "keywords": [
     "async",
     "asynchronous",
-    "event"
+    "event",
+    "bus"
   ],
   "homepage": "https://github.com/phpgears/event-async",
   "license": "MIT",
