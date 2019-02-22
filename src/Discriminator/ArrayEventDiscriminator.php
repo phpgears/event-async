@@ -15,21 +15,21 @@ namespace Gears\Event\Async\Discriminator;
 
 use Gears\Event\Event;
 
-final class ClassEventDiscriminator implements EventDiscriminator
+final class ArrayEventDiscriminator implements EventDiscriminator
 {
     /**
-     * @var string
+     * @var string[]
      */
-    private $class;
+    private $events;
 
     /**
-     * ClassEventDiscriminator constructor.
+     * ArrayEventDiscriminator constructor.
      *
-     * @param string $class
+     * @param string[] $events
      */
-    public function __construct(string $class)
+    public function __construct(array $events)
     {
-        $this->class = $class;
+        $this->events = \array_values($events);
     }
 
     /**
@@ -37,6 +37,6 @@ final class ClassEventDiscriminator implements EventDiscriminator
      */
     public function shouldEnqueue(Event $event): bool
     {
-        return \is_a($event, $this->class);
+        return \in_array(\get_class($event), $this->events, true);
     }
 }

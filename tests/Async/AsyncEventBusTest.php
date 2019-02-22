@@ -14,10 +14,11 @@ declare(strict_types=1);
 namespace Gears\Event\Async\Tests;
 
 use Gears\Event\Async\AsyncEventBus;
-use Gears\Event\Async\Discriminator\ClassEventDiscriminator;
+use Gears\Event\Async\Discriminator\EventDiscriminator;
 use Gears\Event\Async\EventQueue;
 use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Async\Tests\Stub\EventStub;
+use Gears\Event\Event;
 use Gears\Event\EventBus;
 use PHPUnit\Framework\TestCase;
 
@@ -35,13 +36,12 @@ class AsyncEventBusTest extends TestCase
         $queueMock->expects($this->once())
             ->method('send');
         /** @var EventQueue $queueMock */
-        $discriminatorMock = $this->getMockBuilder(ClassEventDiscriminator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $discriminatorMock->expects($this->once())
-            ->method('shouldEnqueue')
-            ->will($this->returnValue(true));
-        /* @var \Gears\Event\Async\Discriminator\EventDiscriminator $discriminatorMock */
+        $discriminatorMock = new class() implements EventDiscriminator {
+            public function shouldEnqueue(Event $event): bool
+            {
+                return true;
+            }
+        };
 
         (new AsyncEventBus($busMock, $queueMock, $discriminatorMock))->dispatch(EventStub::instance([]));
     }
@@ -58,13 +58,12 @@ class AsyncEventBusTest extends TestCase
         $queueMock->expects($this->never())
             ->method('send');
         /** @var EventQueue $queueMock */
-        $discriminatorMock = $this->getMockBuilder(ClassEventDiscriminator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $discriminatorMock->expects($this->once())
-            ->method('shouldEnqueue')
-            ->will($this->returnValue(false));
-        /* @var \Gears\Event\Async\Discriminator\EventDiscriminator $discriminatorMock */
+        $discriminatorMock = new class() implements EventDiscriminator {
+            public function shouldEnqueue(Event $event): bool
+            {
+                return false;
+            }
+        };
 
         (new AsyncEventBus($busMock, $queueMock, $discriminatorMock))->dispatch(EventStub::instance([]));
     }
@@ -81,12 +80,12 @@ class AsyncEventBusTest extends TestCase
         $queueMock->expects($this->never())
             ->method('send');
         /** @var EventQueue $queueMock */
-        $discriminatorMock = $this->getMockBuilder(ClassEventDiscriminator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $discriminatorMock->expects($this->never())
-            ->method('shouldEnqueue');
-        /* @var \Gears\Event\Async\Discriminator\EventDiscriminator $discriminatorMock */
+        $discriminatorMock = new class() implements EventDiscriminator {
+            public function shouldEnqueue(Event $event): bool
+            {
+                return true;
+            }
+        };
 
         $event = new ReceivedEvent(EventStub::instance([]));
 

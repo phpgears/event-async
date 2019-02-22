@@ -15,7 +15,7 @@ namespace Gears\Event\Async\Discriminator;
 
 use Gears\Event\Event;
 
-class ParameterEventDiscriminator implements EventDiscriminator
+final class ParameterEventDiscriminator implements EventDiscriminator
 {
     /**
      * Event parameter name.
@@ -32,7 +32,7 @@ class ParameterEventDiscriminator implements EventDiscriminator
     private $value;
 
     /**
-     * AsyncEventParameterDiscriminator constructor.
+     * ParameterEventDiscriminator constructor.
      *
      * @param string     $parameter
      * @param mixed|null $value

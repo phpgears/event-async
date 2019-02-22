@@ -105,10 +105,11 @@ while (true) {
 
 Discriminates whether a event should or should not be enqueued based on arbitrary conditions
 
-Two discriminators are provided in this package
+Three discriminators are provided in this package
 
-* `Gears\Event\Async\Discriminator\ClassEventDiscriminator` which selects events by their class or interface
- * `Gears\Event\Async\Discriminator\ParameterEventDiscriminator` which does it by the presence of a event payload parameter (optionally by its value as well)
+* `Gears\Event\Async\Discriminator\ArrayEventDiscriminator` selects events if they are present in the array provided
+* `Gears\Event\Async\Discriminator\ClassEventDiscriminator` selects events by their class or interface
+ * `Gears\Event\Async\Discriminator\ParameterEventDiscriminator` selects events by the presence of a event payload parameter (optionally by its value as well)
 
 ### Event queue
 
