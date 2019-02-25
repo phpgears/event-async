@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Serializer;
 
-use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Async\Serializer\Exception\EventSerializationException;
 use Gears\Event\Event;
 
@@ -88,7 +87,7 @@ class JsonEventSerializer implements EventSerializer
     /**
      * {@inheritdoc}
      */
-    final public function fromSerialized(string $serialized): ReceivedEvent
+    final public function fromSerialized(string $serialized): Event
     {
         ['class' => $eventClass, 'payload' => $payload, 'attributes' => $attributes] =
             $this->getEventDefinition($serialized);
@@ -108,9 +107,7 @@ class JsonEventSerializer implements EventSerializer
         // @codeCoverageIgnoreStart
         try {
             /* @var Event $eventClass */
-            $originalEvent = $eventClass::reconstitute($payload, $this->getDeserializedAttributes($attributes));
-
-            return new ReceivedEvent($originalEvent);
+            return $eventClass::reconstitute($payload, $this->getDeserializationAttributes($attributes));
         } catch (\Exception $exception) {
             throw new EventSerializationException('Error reconstituting event', 0, $exception);
         }
@@ -128,7 +125,7 @@ class JsonEventSerializer implements EventSerializer
      */
     private function getEventDefinition(string $serialized): array
     {
-        $definition = $this->getDeserializedDefinition($serialized);
+        $definition = $this->getDeserializationDefinition($serialized);
 
         if (!isset($definition['class'], $definition['payload'], $definition['attributes'])
             || \count(\array_diff(\array_keys($definition), ['class', 'payload', 'attributes'])) !== 0
@@ -149,7 +146,7 @@ class JsonEventSerializer implements EventSerializer
      *
      * @return array<string, mixed>
      */
-    private function getDeserializedDefinition(string $serialized): array
+    private function getDeserializationDefinition(string $serialized): array
     {
         if (\trim($serialized) === '') {
             throw new EventSerializationException('Malformed JSON serialized event: empty string');
@@ -171,13 +168,13 @@ class JsonEventSerializer implements EventSerializer
     }
 
     /**
-     * Get deserialized attributes.
+     * Get deserialization attributes.
      *
      * @param array<string, mixed> $attributes
      *
      * @return array<string, mixed>
      */
-    protected function getDeserializedAttributes(array $attributes): array
+    protected function getDeserializationAttributes(array $attributes): array
     {
         return [
             'createdAt' => \DateTimeImmutable::createFromFormat(self::DATE_RFC3339_EXTENDED, $attributes['createdAt']),

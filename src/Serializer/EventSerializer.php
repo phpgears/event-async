@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Serializer;
 
-use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Event;
 
 interface EventSerializer
@@ -36,7 +35,7 @@ interface EventSerializer
      *
      * @throws \Gears\Event\Async\Serializer\Exception\EventSerializationException
      *
-     * @return ReceivedEvent
+     * @return Event
      */
-    public function fromSerialized(string $serialized): ReceivedEvent;
+    public function fromSerialized(string $serialized): Event;
 }

@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Serializer;
 
-use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Async\Serializer\Exception\EventSerializationException;
 use Gears\Event\Event;
 
@@ -30,7 +29,7 @@ class NativeEventSerializer implements EventSerializer
     /**
      * {@inheritdoc}
      */
-    public function fromSerialized(string $serialized): ReceivedEvent
+    public function fromSerialized(string $serialized): Event
     {
         $event = \unserialize($serialized);
 
@@ -38,6 +37,6 @@ class NativeEventSerializer implements EventSerializer
             throw new EventSerializationException('Invalid unserialized event');
         }
 
-        return new ReceivedEvent($event);
+        return $event;
     }
 }

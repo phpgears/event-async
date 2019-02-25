@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Tests;
 
-use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Async\Serializer\JsonEventSerializer;
 use Gears\Event\Async\Tests\Stub\EventStub;
 use PHPUnit\Framework\TestCase;
@@ -34,8 +33,8 @@ class JsonEventSerializerTest extends TestCase
 
     public function testDeserialize(): void
     {
-        $event = new ReceivedEvent(EventStub::instance(['identifier' => '1234']));
-        $eventDate = $event->getOriginalEvent()->getCreatedAt()->format('Y-m-d\TH:i:s.uP');
+        $event = EventStub::instance(['identifier' => '1234']);
+        $eventDate = $event->getCreatedAt()->format('Y-m-d\TH:i:s.uP');
 
         $serialized = '{"class":"Gears\\\\Event\\\\Async\\\\Tests\\\\Stub\\\\EventStub",'
             . '"payload":{"identifier":"1234"},'

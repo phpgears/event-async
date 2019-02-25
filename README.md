@@ -64,6 +64,7 @@ This part is highly dependent on your message queue, though event serializers ca
 This is just an example of the process
 
 ```php
+use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Async\Serializer\JsonEventSerializer;
 
 /* @var \Gears\Event\Async\AsyncEventBus $asyncEventBus */
@@ -75,31 +76,14 @@ while (true) {
   $message = $queue->getMessage();
 
   if ($message !== null) {
-    $asyncEventBus->dispatch($serializer->fromSerialized($message))
+    $event = new ReceivedEvent($serializer->fromSerialized($message));
+
+    $asyncEventBus->dispatch($event);
   }
 }
 ```
 
-Deserialized events are wrapped in Gears\Event\Async\ReceivedEvent in order to avoid infinite loops when handling the event on the bus. If you want to use the non-async event bus on the dequeue side simply extract the original event
-
-```php
-use Gears\Event\Async\Serializer\JsonEventSerializer;
-
-/* @var \Gears\Event\EventBus $eventBus */
-/* @var your_message_queue_manager $queue */
-
-$serializer = new JsonEventSerializer();
-
-while (true) {
-  $message = $queue->getMessage();
-  
-  if ($message !== null) {
-    $originalEvent = $serializer->fromSerialized($message)->getOriginalEvent();
-
-    $eventBus->dispatch($originalEvent)
-  }
-}
-```
+Deserialized events should be wrapped in Gears\Event\Async\ReceivedEvent in order to avoid infinite loops should you decide to handle the events on an async bus. If you decide to use a non-async bus on the dequeue side you don't need to do this
 
 ### Discriminator
 
@@ -117,7 +101,7 @@ This is the one responsible for actual async handling, which would normally be s
 
 No implementation is provided but an abstract base class so you can extend from it
 
-```
+```php
 use Gears\Event\Async\AbstractEventQueue;
 
 class CustomEventQueue extends AbstractEventQueue
@@ -138,7 +122,7 @@ Two serializers are provided out of the box
 * `Gears\Event\Async\Serializer\JsonEventSerializer` which is great in general or if you plan to use other languages aside PHP to handle async events
 * `Gears\Event\Async\Serializer\NativeEventSerializer` only advised if you're only going to use PHP to dequeue events
 
-It's deadly simple to create your own if this two does not fit your needs by implementing `Gears\Event\Async\Serializer\EventSerializer` interface
+It's easy to create your own serializer if this two does not fit your needs, for example by using [JMS serializer](https://github.com/schmittjoh/serializer), simply by implementing `Gears\Event\Async\Serializer\EventSerializer` interface
 
 _This are helping classes that your custom implementation of `EventQueue` might not need_
 

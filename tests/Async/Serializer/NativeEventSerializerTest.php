@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Tests;
 
-use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Async\Serializer\NativeEventSerializer;
 use Gears\Event\Async\Tests\Stub\EventStub;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +37,7 @@ class NativeEventSerializerTest extends TestCase
 
         $deserialized = (new NativeEventSerializer())->fromSerialized(\serialize($event));
 
-        $this->assertEquals(new ReceivedEvent($event), $deserialized);
+        $this->assertEquals($event, $deserialized);
     }
 
     /**
