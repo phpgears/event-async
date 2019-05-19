@@ -21,7 +21,7 @@ class NativeEventSerializer implements EventSerializer
     /**
      * {@inheritdoc}
      */
-    public function serialize(Event $event): string
+    final public function serialize(Event $event): string
     {
         return \serialize($event);
     }
@@ -29,7 +29,7 @@ class NativeEventSerializer implements EventSerializer
     /**
      * {@inheritdoc}
      */
-    public function fromSerialized(string $serialized): Event
+    final public function fromSerialized(string $serialized): Event
     {
         $event = \unserialize($serialized);
 

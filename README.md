@@ -57,9 +57,11 @@ $asyncEvent = new CustomEvent(['async' => true]);
 $asyncEventBus->dispatch($asyncEvent);
 ```
 
+Please mind that enqueuing process is independent of event handling, does not prevent the event from being handled. Enqueuing an event happens in first place and then the event is dispatched as normal to the wrapped event bus
+
 #### Dequeue
 
-This part is highly dependent on your message queue, though event serializers can be used to deserialize queue message
+This part is highly dependent on the message queue of your choosing, though event serializers can be used to deserialize queue message
 
 This is just an example of the process
 
@@ -83,7 +85,7 @@ while (true) {
 }
 ```
 
-Deserialized events should be wrapped in Gears\Event\Async\ReceivedEvent in order to avoid infinite loops should you decide to handle the events on an async bus. If you decide to use a non-async bus on the dequeue side you don't need to do this
+Deserialized events should be wrapped in `Gears\Event\Async\ReceivedEvent` in order to avoid infinite loops should you decide to handle the events on an async bus. **If you decide to use a non-async bus on the dequeue side you don't need to do this wrapping**
 
 ### Discriminator
 
@@ -99,7 +101,7 @@ Three discriminators are provided in this package
 
 This is the one responsible for actual async handling, which would normally be send the serialized event to a message queue system such as RabbitMQ
 
-No implementation is provided but an abstract base class so you can extend from it
+No implementation is provided in this package but an abstract base class so you can extend from it
 
 ```php
 use Gears\Event\Async\AbstractEventQueue;
@@ -113,6 +115,8 @@ class CustomEventQueue extends AbstractEventQueue
 }
 ```
 
+You can use [event-async-queue-interop](https://github.com/phpgears/event-async-queue-interop) that uses [Queue-interop](https://github.com/queue-interop/queue-interop) for enqueuing messages
+
 ### Serializer
 
 Abstract event queue uses serializers to do event serialization so it can be sent to the message queue as a string message
@@ -125,6 +129,16 @@ Two serializers are provided out of the box
 It's easy to create your own serializer if this two does not fit your needs, for example by using [JMS serializer](https://github.com/schmittjoh/serializer), simply by implementing `Gears\Event\Async\Serializer\EventSerializer` interface
 
 _This are helping classes that your custom implementation of `EventQueue` might not need_
+
+### Distributed systems
+
+On distributed systems, such as micro-service systems, events can be dequeued on a completely different part of the system, this part should of course know about events triggered and their contents but could eventually not have access to the event class itself
+
+For example in the context of Domain Events on DDD a bounded context could react to events triggered by another completely different bounded context and of course won't be able to deserialize the original event as it is located on another domain
+
+This can be solved in one of two ways, transform messages coming out from the message queue before handing them to the event serializer, or better by creating a custom `Gears\Event\Async\Serializer\EventSerializer` encapsulating this transformation
+
+_Transformation can be as simple as changing event class to be reconstituted_
 
 ## Contributing
 
