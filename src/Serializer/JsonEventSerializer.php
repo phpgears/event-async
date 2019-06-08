@@ -80,6 +80,7 @@ class JsonEventSerializer implements EventSerializer
     protected function getSerializationAttributes(Event $event): array
     {
         return [
+            'metadata' => $event->getMetadata(),
             'createdAt' => $event->getCreatedAt()->format(self::DATE_RFC3339_EXTENDED),
         ];
     }
@@ -177,6 +178,7 @@ class JsonEventSerializer implements EventSerializer
     protected function getDeserializationAttributes(array $attributes): array
     {
         return [
+            'metadata' => $attributes['metadata'],
             'createdAt' => \DateTimeImmutable::createFromFormat(self::DATE_RFC3339_EXTENDED, $attributes['createdAt']),
         ];
     }

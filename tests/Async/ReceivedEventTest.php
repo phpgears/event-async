@@ -57,6 +57,24 @@ class ReceivedEventTest extends TestCase
 
     /**
      * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
+     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::getMetadata should not be called
+     */
+    public function testGetMetadataException(): void
+    {
+        (new ReceivedEvent(EventStub::instance([])))->getMetadata();
+    }
+
+    /**
+     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
+     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::withMetadata should not be called
+     */
+    public function testGetMetadataMutateException(): void
+    {
+        (new ReceivedEvent(EventStub::instance([])))->withMetadata([]);
+    }
+
+    /**
+     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
      * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::getCreatedAt should not be called
      */
     public function testGetCreatedAtException(): void

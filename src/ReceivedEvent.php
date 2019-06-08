@@ -81,6 +81,30 @@ final class ReceivedEvent implements Event
      * {@inheritdoc}
      *
      * @throws ReceivedEventException
+     *
+     * @return array<string, mixed>
+     */
+    public function getMetadata(): array
+    {
+        throw new ReceivedEventException(\sprintf('Method %s should not be called ', __METHOD__));
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws ReceivedEventException
+     *
+     * @return array<string, mixed>
+     */
+    public function withMetadata(array $metadata)
+    {
+        throw new ReceivedEventException(\sprintf('Method %s should not be called ', __METHOD__));
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws ReceivedEventException
      */
     public function getCreatedAt(): \DateTimeImmutable
     {

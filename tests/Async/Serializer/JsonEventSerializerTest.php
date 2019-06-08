@@ -34,11 +34,12 @@ class JsonEventSerializerTest extends TestCase
     public function testDeserialize(): void
     {
         $event = EventStub::instance(['identifier' => '1234']);
+        $event = $event->withMetadata(['meta' => 'data']);
         $eventDate = $event->getCreatedAt()->format('Y-m-d\TH:i:s.uP');
 
         $serialized = '{"class":"Gears\\\\Event\\\\Async\\\\Tests\\\\Stub\\\\EventStub",'
             . '"payload":{"identifier":"1234"},'
-            . '"attributes":{"createdAt":"' . $eventDate . '"}}';
+            . '"attributes":{"metadata":{"meta":"data"},"createdAt":"' . $eventDate . '"}}';
 
         $deserialized = (new JsonEventSerializer())->fromSerialized($serialized);
 

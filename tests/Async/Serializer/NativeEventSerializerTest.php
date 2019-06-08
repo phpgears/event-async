@@ -34,6 +34,7 @@ class NativeEventSerializerTest extends TestCase
     public function testDeserialize(): void
     {
         $event = EventStub::instance(['identifier' => '1234']);
+        $event = $event->withMetadata(['meta' => 'data']);
 
         $deserialized = (new NativeEventSerializer())->fromSerialized(\serialize($event));
 
