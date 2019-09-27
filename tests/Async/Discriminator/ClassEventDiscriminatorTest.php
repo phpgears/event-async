@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Gears\Event\Async\Tests;
+namespace Gears\Event\Async\Tests\Discriminator;
 
 use Gears\Event\Async\Discriminator\ClassEventDiscriminator;
 use Gears\Event\Async\Tests\Stub\EventStub;
@@ -30,7 +30,7 @@ class ClassEventDiscriminatorTest extends TestCase
         /** @var \Gears\Event\Event $eventMock */
         $discriminator = new ClassEventDiscriminator(\get_class($eventMock));
 
-        $this->assertTrue($discriminator->shouldEnqueue($eventMock));
-        $this->assertFalse($discriminator->shouldEnqueue(EventStub::instance()));
+        static::assertTrue($discriminator->shouldEnqueue($eventMock));
+        static::assertFalse($discriminator->shouldEnqueue(EventStub::instance()));
     }
 }

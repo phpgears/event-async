@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Gears\Event\Async\Tests;
+namespace Gears\Event\Async\Tests\Discriminator;
 
 use Gears\Event\Async\Discriminator\ParameterEventDiscriminator;
 use Gears\Event\Async\Tests\Stub\EventStub;
@@ -26,15 +26,15 @@ class ParameterEventDiscriminatorTest extends TestCase
     {
         $discriminator = new ParameterEventDiscriminator('identifier');
 
-        $this->assertTrue($discriminator->shouldEnqueue(EventStub::instance(['identifier' => null])));
-        $this->assertFalse($discriminator->shouldEnqueue(EventStub::instance([])));
+        static::assertTrue($discriminator->shouldEnqueue(EventStub::instance(['identifier' => null])));
+        static::assertFalse($discriminator->shouldEnqueue(EventStub::instance([])));
     }
 
     public function testDiscriminateParameterValue(): void
     {
         $discriminator = new ParameterEventDiscriminator('identifier', '1234');
 
-        $this->assertTrue($discriminator->shouldEnqueue(EventStub::instance(['identifier' => '1234'])));
-        $this->assertFalse($discriminator->shouldEnqueue(EventStub::instance(['identifier' => true])));
+        static::assertTrue($discriminator->shouldEnqueue(EventStub::instance(['identifier' => '1234'])));
+        static::assertFalse($discriminator->shouldEnqueue(EventStub::instance(['identifier' => true])));
     }
 }

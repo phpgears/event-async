@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Tests;
 
+use Gears\Event\Async\Exception\ReceivedEventException;
 use Gears\Event\Async\ReceivedEvent;
 use Gears\Event\Async\Tests\Stub\EventStub;
 use PHPUnit\Framework\TestCase;
@@ -21,73 +22,66 @@ class ReceivedEventTest extends TestCase
 {
     public function testOriginalEvent(): void
     {
-        $originalEvent = EventStub::instance([]);
+        $originalEvent = EventStub::instance();
 
         $event = new ReceivedEvent($originalEvent);
 
-        $this->assertSame($originalEvent, $event->getOriginalEvent());
+        static::assertSame($originalEvent, $event->getOriginalEvent());
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
-     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::has should not be called
-     */
     public function testHasException(): void
     {
-        (new ReceivedEvent(EventStub::instance([])))->has('');
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::has should not be called');
+
+        (new ReceivedEvent(EventStub::instance()))->has('');
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
-     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::get should not be called
-     */
     public function testGetException(): void
     {
-        (new ReceivedEvent(EventStub::instance([])))->get('');
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::get should not be called');
+
+        (new ReceivedEvent(EventStub::instance()))->get('');
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
-     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::getPayload should not be called
-     */
     public function testGetPayloadException(): void
     {
-        (new ReceivedEvent(EventStub::instance([])))->getPayload();
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::getPayload should not be called');
+
+        (new ReceivedEvent(EventStub::instance()))->getPayload();
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
-     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::getMetadata should not be called
-     */
     public function testGetMetadataException(): void
     {
-        (new ReceivedEvent(EventStub::instance([])))->getMetadata();
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::getMetadata should not be called');
+
+        (new ReceivedEvent(EventStub::instance()))->getMetadata();
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
-     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::withMetadata should not be called
-     */
     public function testGetMetadataMutateException(): void
     {
-        (new ReceivedEvent(EventStub::instance([])))->withMetadata([]);
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::withAddedMetadata should not be called');
+
+        (new ReceivedEvent(EventStub::instance()))->withAddedMetadata([]);
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
-     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::getCreatedAt should not be called
-     */
     public function testGetCreatedAtException(): void
     {
-        (new ReceivedEvent(EventStub::instance([])))->getCreatedAt();
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::getCreatedAt should not be called');
+
+        (new ReceivedEvent(EventStub::instance()))->getCreatedAt();
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Exception\ReceivedEventException
-     * @expectedExceptionMessage Method Gears\Event\Async\ReceivedEvent::reconstitute should not be called
-     */
     public function testReconstituteException(): void
     {
-        ReceivedEvent::reconstitute([]);
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::reconstitute should not be called');
+
+        ReceivedEvent::reconstitute([], new \DateTimeImmutable('now'));
     }
 }

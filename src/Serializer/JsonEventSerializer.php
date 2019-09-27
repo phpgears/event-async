@@ -52,6 +52,7 @@ class JsonEventSerializer implements EventSerializer
             [
                 'class' => \get_class($event),
                 'payload' => $event->getPayload(),
+                'createdAt' => $event->getCreatedAt()->format(self::DATE_RFC3339_EXTENDED),
                 'attributes' => $this->getSerializationAttributes($event),
             ],
             static::JSON_ENCODE_OPTIONS
@@ -81,7 +82,6 @@ class JsonEventSerializer implements EventSerializer
     {
         return [
             'metadata' => $event->getMetadata(),
-            'createdAt' => $event->getCreatedAt()->format(self::DATE_RFC3339_EXTENDED),
         ];
     }
 
@@ -90,7 +90,7 @@ class JsonEventSerializer implements EventSerializer
      */
     final public function fromSerialized(string $serialized): Event
     {
-        ['class' => $eventClass, 'payload' => $payload, 'attributes' => $attributes] =
+        ['class' => $eventClass, 'payload' => $payload, 'createdAt' => $createdAt, 'attributes' => $attributes] =
             $this->getEventDefinition($serialized);
 
         if (!\class_exists($eventClass)) {
@@ -105,10 +105,12 @@ class JsonEventSerializer implements EventSerializer
             ));
         }
 
+        $createdAt = \DateTimeImmutable::createFromFormat(self::DATE_RFC3339_EXTENDED, $createdAt);
+
         // @codeCoverageIgnoreStart
         try {
             /* @var Event $eventClass */
-            return $eventClass::reconstitute($payload, $this->getDeserializationAttributes($attributes));
+            return $eventClass::reconstitute($payload, $createdAt, $this->getDeserializationAttributes($attributes));
         } catch (\Exception $exception) {
             throw new EventSerializationException('Error reconstituting event', 0, $exception);
         }
@@ -128,10 +130,11 @@ class JsonEventSerializer implements EventSerializer
     {
         $definition = $this->getDeserializationDefinition($serialized);
 
-        if (!isset($definition['class'], $definition['payload'], $definition['attributes'])
-            || \count(\array_diff(\array_keys($definition), ['class', 'payload', 'attributes'])) !== 0
+        if (!isset($definition['class'], $definition['payload'], $definition['createdAt'], $definition['attributes'])
+            || \count(\array_diff(\array_keys($definition), ['class', 'payload', 'createdAt', 'attributes'])) !== 0
             || !\is_string($definition['class'])
             || !\is_array($definition['payload'])
+            || !\is_string($definition['createdAt'])
             || !\is_array($definition['attributes'])
         ) {
             throw new EventSerializationException('Malformed JSON serialized event');
@@ -179,7 +182,6 @@ class JsonEventSerializer implements EventSerializer
     {
         return [
             'metadata' => $attributes['metadata'],
-            'createdAt' => \DateTimeImmutable::createFromFormat(self::DATE_RFC3339_EXTENDED, $attributes['createdAt']),
         ];
     }
 }

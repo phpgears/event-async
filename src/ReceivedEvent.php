@@ -96,7 +96,7 @@ final class ReceivedEvent implements Event
      *
      * @return array<string, mixed>
      */
-    public function withMetadata(array $metadata)
+    public function withAddedMetadata(array $metadata)
     {
         throw new ReceivedEventException(\sprintf('Method %s should not be called ', __METHOD__));
     }
@@ -116,7 +116,7 @@ final class ReceivedEvent implements Event
      *
      * @throws ReceivedEventException
      */
-    public static function reconstitute(array $payload, array $attributes = []): void
+    public static function reconstitute(array $payload, \DateTimeImmutable $createdAt, array $attributes = []): void
     {
         throw new ReceivedEventException(\sprintf('Method %s should not be called ', __METHOD__));
     }

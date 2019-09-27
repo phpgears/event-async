@@ -28,12 +28,12 @@ class AsyncEventBusTest extends TestCase
     {
         $busMock = $this->getMockBuilder(EventBus::class)
             ->getMock();
-        $busMock->expects($this->once())
+        $busMock->expects(static::once())
             ->method('dispatch');
         /** @var EventBus $busMock */
         $queueMock = $this->getMockBuilder(EventQueue::class)
             ->getMock();
-        $queueMock->expects($this->once())
+        $queueMock->expects(static::once())
             ->method('send');
         /** @var EventQueue $queueMock */
         $discriminatorMock = new class() implements EventDiscriminator {
@@ -50,12 +50,12 @@ class AsyncEventBusTest extends TestCase
     {
         $busMock = $this->getMockBuilder(EventBus::class)
             ->getMock();
-        $busMock->expects($this->once())
+        $busMock->expects(static::once())
             ->method('dispatch');
         /** @var EventBus $busMock */
         $queueMock = $this->getMockBuilder(EventQueue::class)
             ->getMock();
-        $queueMock->expects($this->never())
+        $queueMock->expects(static::never())
             ->method('send');
         /** @var EventQueue $queueMock */
         $discriminatorMock = new class() implements EventDiscriminator {
@@ -72,12 +72,12 @@ class AsyncEventBusTest extends TestCase
     {
         $busMock = $this->getMockBuilder(EventBus::class)
             ->getMock();
-        $busMock->expects($this->once())
+        $busMock->expects(static::once())
             ->method('dispatch');
         /** @var EventBus $busMock */
         $queueMock = $this->getMockBuilder(EventQueue::class)
             ->getMock();
-        $queueMock->expects($this->never())
+        $queueMock->expects(static::never())
             ->method('send');
         /** @var EventQueue $queueMock */
         $discriminatorMock = new class() implements EventDiscriminator {

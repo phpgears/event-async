@@ -24,7 +24,7 @@ class AbstractEventQueueTest extends TestCase
     {
         $serializer = $this->getMockBuilder(EventSerializer::class)
             ->getMock();
-        $serializer->expects($this->once())
+        $serializer->expects(static::once())
             ->method('serialize');
         /* @var EventSerializer $serializer */
 

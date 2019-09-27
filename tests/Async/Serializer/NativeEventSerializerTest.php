@@ -11,8 +11,9 @@
 
 declare(strict_types=1);
 
-namespace Gears\Event\Async\Tests;
+namespace Gears\Event\Async\Tests\Serializer;
 
+use Gears\Event\Async\Serializer\Exception\EventSerializationException;
 use Gears\Event\Async\Serializer\NativeEventSerializer;
 use Gears\Event\Async\Tests\Stub\EventStub;
 use PHPUnit\Framework\TestCase;
@@ -28,25 +29,24 @@ class NativeEventSerializerTest extends TestCase
 
         $serialized = (new NativeEventSerializer())->serialize($event);
 
-        $this->assertContains('a:1:{s:10:"identifier";s:4:"1234";}', $serialized);
+        static::assertContains('a:1:{s:10:"identifier";s:4:"1234";}', $serialized);
     }
 
     public function testDeserialize(): void
     {
         $event = EventStub::instance(['identifier' => '1234']);
-        $event = $event->withMetadata(['meta' => 'data']);
+        $event = $event->withAddedMetadata(['meta' => 'data']);
 
         $deserialized = (new NativeEventSerializer())->fromSerialized(\serialize($event));
 
-        $this->assertEquals($event, $deserialized);
+        static::assertEquals($event, $deserialized);
     }
 
-    /**
-     * @expectedException \Gears\Event\Async\Serializer\Exception\EventSerializationException
-     * @expectedExceptionMessage Invalid unserialized event
-     */
     public function testInvalidDeserialization(): void
     {
+        $this->expectException(EventSerializationException::class);
+        $this->expectExceptionMessage('Invalid unserialized event');
+
         (new NativeEventSerializer())->fromSerialized(\serialize(new \stdClass()));
     }
 }
