@@ -26,10 +26,16 @@ class JsonEventSerializerTest extends TestCase
     public function testSerialize(): void
     {
         $event = EventStub::instance(['identifier' => '1234']);
+        $eventDate = $event->getCreatedAt()->format('Y-m-d\TH:i:s.uP');
+
+        $expected = '{"class":"Gears\\\Event\\\Async\\\Tests\\\Stub\\\EventStub",'
+            . '"payload":{"identifier":"1234"},'
+            . '"createdAt":"' . $eventDate . '",'
+            . '"attributes":{"metadata":[]}}';
 
         $serialized = (new JsonEventSerializer())->serialize($event);
 
-        static::assertContains('"payload":{"identifier":"1234"}', $serialized);
+        static::assertEquals($expected, $serialized);
     }
 
     public function testDeserialize(): void

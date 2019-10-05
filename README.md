@@ -85,7 +85,7 @@ while (true) {
 }
 ```
 
-Deserialized events should be wrapped in `Gears\Event\Async\ReceivedEvent` in order to avoid infinite loops should you decide to handle the events on an async bus. **If you decide to use a non-async bus on the dequeue side you don't need to do this wrapping**
+Deserialized events should be wrapped in `Gears\Event\Async\ReceivedEvent` in order to avoid infinite loops should you decide to dispatch the events to an async event bus. **If you decide to use a non-async bus on the dequeue side you don't need to do this wrapping**
 
 ### Discriminator
 
@@ -99,7 +99,7 @@ Three discriminators are provided in this package
 
 ### Event queue
 
-This is the one responsible for actual async handling, which would normally be send the serialized event to a message queue system such as RabbitMQ
+This is the one responsible for actual async handling, which would normally be sending the serialized event to a message queue system such as RabbitMQ
 
 No implementation is provided in this package but an abstract base class so you can extend from it
 
@@ -115,20 +115,15 @@ class CustomEventQueue extends AbstractEventQueue
 }
 ```
 
-You can use [event-async-queue-interop](https://github.com/phpgears/event-async-queue-interop) that uses [Queue-interop](https://github.com/queue-interop/queue-interop) for enqueuing messages
+You can use [event-async-queue-interop](https://github.com/phpgears/event-async-queue-interop) that uses [queue-interop](https://github.com/queue-interop/queue-interop) for enqueuing messages
 
 ### Serializer
 
 Abstract event queue uses serializers to do event serialization so it can be sent to the message queue as a string message
 
-Two serializers are provided out of the box
+`Gears\Event\Async\Serializer\JsonEventSerializer` is directly provided as a general serializer allowing maximum compatibility in case of events being handled by other systems
 
-* `Gears\Event\Async\Serializer\JsonEventSerializer` which is great in general or if you plan to use other languages aside PHP to handle async events
-* `Gears\Event\Async\Serializer\NativeEventSerializer` only advised if you're only going to use PHP to dequeue events
-
-It's easy to create your own serializer if this two does not fit your needs, for example by using [JMS serializer](https://github.com/schmittjoh/serializer), simply by implementing `Gears\Event\Async\Serializer\EventSerializer` interface
-
-_This are helping classes that your custom implementation of `EventQueue` might not need_
+You can create your own serializer if the one provided does not fit your needs, for example by using _JMS serializer_, by implementing `Gears\Event\Async\Serializer\EventSerializer` interface
 
 ### Distributed systems
 

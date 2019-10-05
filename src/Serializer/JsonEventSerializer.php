@@ -16,13 +16,13 @@ namespace Gears\Event\Async\Serializer;
 use Gears\Event\Async\Serializer\Exception\EventSerializationException;
 use Gears\Event\Event;
 
-class JsonEventSerializer implements EventSerializer
+final class JsonEventSerializer implements EventSerializer
 {
     /**
      * JSON encoding options.
      * Preserve float values and encode &, ', ", < and > characters in the resulting JSON.
      */
-    protected const JSON_ENCODE_OPTIONS = \JSON_UNESCAPED_UNICODE
+    private const JSON_ENCODE_OPTIONS = \JSON_UNESCAPED_UNICODE
         | \JSON_UNESCAPED_SLASHES
         | \JSON_PRESERVE_ZERO_FRACTION
         | \JSON_HEX_AMP
@@ -34,25 +34,25 @@ class JsonEventSerializer implements EventSerializer
      * JSON decoding options.
      * Decode large integers as string values.
      */
-    protected const JSON_DECODE_OPTIONS = \JSON_BIGINT_AS_STRING;
+    private const JSON_DECODE_OPTIONS = \JSON_BIGINT_AS_STRING;
 
     /**
      * \DateTime::RFC3339_EXTENDED cannot handle microseconds on \DateTimeImmutable::createFromFormat.
      *
      * @see https://stackoverflow.com/a/48949373
      */
-    protected const DATE_RFC3339_EXTENDED = 'Y-m-d\TH:i:s.uP';
+    private const DATE_RFC3339_EXTENDED = 'Y-m-d\TH:i:s.uP';
 
     /**
      * {@inheritdoc}
      */
-    final public function serialize(Event $event): string
+    public function serialize(Event $event): string
     {
         $serialized = \json_encode(
             [
                 'class' => \get_class($event),
                 'payload' => $event->getPayload(),
-                'createdAt' => $event->getCreatedAt()->format(self::DATE_RFC3339_EXTENDED),
+                'createdAt' => $event->getCreatedAt()->format(static::DATE_RFC3339_EXTENDED),
                 'attributes' => $this->getSerializationAttributes($event),
             ],
             static::JSON_ENCODE_OPTIONS
@@ -78,7 +78,7 @@ class JsonEventSerializer implements EventSerializer
      *
      * @return array<string, mixed>
      */
-    protected function getSerializationAttributes(Event $event): array
+    private function getSerializationAttributes(Event $event): array
     {
         return [
             'metadata' => $event->getMetadata(),
@@ -88,7 +88,7 @@ class JsonEventSerializer implements EventSerializer
     /**
      * {@inheritdoc}
      */
-    final public function fromSerialized(string $serialized): Event
+    public function fromSerialized(string $serialized): Event
     {
         ['class' => $eventClass, 'payload' => $payload, 'createdAt' => $createdAt, 'attributes' => $attributes] =
             $this->getEventDefinition($serialized);
@@ -178,7 +178,7 @@ class JsonEventSerializer implements EventSerializer
      *
      * @return array<string, mixed>
      */
-    protected function getDeserializationAttributes(array $attributes): array
+    private function getDeserializationAttributes(array $attributes): array
     {
         return [
             'metadata' => $attributes['metadata'],
