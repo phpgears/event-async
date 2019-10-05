@@ -27,6 +27,9 @@ class ArrayEventDiscriminatorTest extends TestCase
         $eventMock = $this->getMockBuilder(EventStub::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $eventMock->expects(static::any())
+            ->method('getEventType')
+            ->will(static::returnValue(\get_class($eventMock)));
         /** @var \Gears\Event\Event $eventMock */
         $discriminator = new ArrayEventDiscriminator([\get_class($eventMock)]);
 

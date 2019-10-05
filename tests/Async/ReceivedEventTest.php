@@ -29,6 +29,13 @@ class ReceivedEventTest extends TestCase
         static::assertSame($originalEvent, $event->getOriginalEvent());
     }
 
+    public function testTypeException(): void
+    {
+        $this->expectException(ReceivedEventException::class);
+        $this->expectExceptionMessage('Method Gears\Event\Async\ReceivedEvent::getEventType should not be called');
+        (new ReceivedEvent(EventStub::instance([])))->getEventType();
+    }
+
     public function testHasException(): void
     {
         $this->expectException(ReceivedEventException::class);

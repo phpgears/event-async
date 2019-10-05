@@ -20,16 +20,16 @@ final class ArrayEventDiscriminator implements EventDiscriminator
     /**
      * @var string[]
      */
-    private $events;
+    private $eventTypes;
 
     /**
      * ArrayEventDiscriminator constructor.
      *
-     * @param string[] $events
+     * @param string[] $eventTypes
      */
-    public function __construct(array $events)
+    public function __construct(array $eventTypes)
     {
-        $this->events = \array_values($events);
+        $this->eventTypes = \array_values($eventTypes);
     }
 
     /**
@@ -37,6 +37,6 @@ final class ArrayEventDiscriminator implements EventDiscriminator
      */
     public function shouldEnqueue(Event $event): bool
     {
-        return \in_array(\get_class($event), $this->events, true);
+        return \in_array($event->getEventType(), $this->eventTypes, true);
     }
 }

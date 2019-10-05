@@ -48,6 +48,16 @@ final class ReceivedEvent implements Event
      *
      * @throws ReceivedEventException
      */
+    public function getEventType(): string
+    {
+        throw new ReceivedEventException(\sprintf('Method %s should not be called ', __METHOD__));
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws ReceivedEventException
+     */
     public function has(string $parameter): bool
     {
         throw new ReceivedEventException(\sprintf('Method %s should not be called ', __METHOD__));
