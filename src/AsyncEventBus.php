@@ -64,12 +64,12 @@ class AsyncEventBus implements EventBus
      */
     final public function dispatch(Event $event): void
     {
-        if (!$event instanceof ReceivedEvent && $this->discriminator->shouldEnqueue($event)) {
+        if (!$event instanceof QueuedEvent && $this->discriminator->shouldEnqueue($event)) {
             $this->queue->send($event);
         }
 
-        if ($event instanceof ReceivedEvent) {
-            $event = $event->getOriginalEvent();
+        if ($event instanceof QueuedEvent) {
+            $event = $event->getWrappedEvent();
         }
 
         $this->wrappedEventBus->dispatch($event);

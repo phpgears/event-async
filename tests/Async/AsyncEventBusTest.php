@@ -16,7 +16,7 @@ namespace Gears\Event\Async\Tests;
 use Gears\Event\Async\AsyncEventBus;
 use Gears\Event\Async\Discriminator\EventDiscriminator;
 use Gears\Event\Async\EventQueue;
-use Gears\Event\Async\ReceivedEvent;
+use Gears\Event\Async\QueuedEvent;
 use Gears\Event\Async\Tests\Stub\EventStub;
 use Gears\Event\Event;
 use Gears\Event\EventBus;
@@ -87,7 +87,7 @@ class AsyncEventBusTest extends TestCase
             }
         };
 
-        $event = new ReceivedEvent(EventStub::instance([]));
+        $event = new QueuedEvent(EventStub::instance([]));
 
         (new AsyncEventBus($busMock, $queueMock, $discriminatorMock))->dispatch($event);
     }

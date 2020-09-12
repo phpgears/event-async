@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Discriminator;
 
+use Gears\DTO\Exception\InvalidParameterException;
 use Gears\Event\Event;
 
 final class ParameterEventDiscriminator implements EventDiscriminator
@@ -48,7 +49,12 @@ final class ParameterEventDiscriminator implements EventDiscriminator
      */
     public function shouldEnqueue(Event $event): bool
     {
-        return $event->has($this->parameter)
-            && ($this->value === null || $event->get($this->parameter) === $this->value);
+        try {
+            $parameterValue = $event->get($this->parameter);
+        } catch (InvalidParameterException $exception) {
+            return false;
+        }
+
+        return $this->value === null || $parameterValue === $this->value;
     }
 }

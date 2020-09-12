@@ -13,6 +13,6 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Exception;
 
-class ReceivedEventException extends \RuntimeException
+class QueuedEventException extends \RuntimeException
 {
 }

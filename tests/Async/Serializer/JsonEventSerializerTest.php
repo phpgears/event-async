@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Tests\Serializer;
 
+use Gears\Event\Async\QueuedEvent;
 use Gears\Event\Async\Serializer\Exception\EventSerializationException;
 use Gears\Event\Async\Serializer\JsonEventSerializer;
 use Gears\Event\Async\Tests\Stub\EventStub;
@@ -23,35 +24,54 @@ use PHPUnit\Framework\TestCase;
  */
 class JsonEventSerializerTest extends TestCase
 {
-    public function testSerialize(): void
+    /**
+     * @dataProvider serializationProvider
+     *
+     * @param EventStub $event
+     * @param string    $serialized
+     */
+    public function testSerialize(EventStub $event, string $serialized): void
     {
-        $event = EventStub::instance(['identifier' => '1234']);
-        $eventDate = $event->getCreatedAt()->format('Y-m-d\TH:i:s.uP');
-
-        $expected = '{"class":"Gears\\\Event\\\Async\\\Tests\\\Stub\\\EventStub",'
-            . '"payload":{"identifier":"1234"},'
-            . '"createdAt":"' . $eventDate . '",'
-            . '"attributes":{"metadata":[]}}';
-
-        $serialized = (new JsonEventSerializer())->serialize($event);
-
-        static::assertEquals($expected, $serialized);
+        static::assertEquals($serialized, (new JsonEventSerializer())->serialize($event));
     }
 
-    public function testDeserialize(): void
+    /**
+     * @dataProvider queuedSerializationProvider
+     *
+     * @param QueuedEvent $event
+     * @param string      $serialized
+     */
+    public function testSerializeQueued(QueuedEvent $event, string $serialized): void
     {
-        $event = EventStub::instance(['identifier' => '1234']);
-        $event = $event->withAddedMetadata(['meta' => 'data']);
-        $eventDate = $event->getCreatedAt()->format('Y-m-d\TH:i:s.uP');
+        static::assertEquals($serialized, (new JsonEventSerializer())->serialize($event));
+    }
 
-        $serialized = '{"class":"Gears\\\\Event\\\\Async\\\\Tests\\\\Stub\\\\EventStub",'
-            . '"payload":{"identifier":"1234"},'
-            . '"createdAt":"' . $eventDate . '",'
-            . '"attributes":{"metadata":{"meta":"data"}}}';
+    /**
+     * @dataProvider serializationProvider
+     *
+     * @param EventStub $event
+     * @param string    $serialized
+     */
+    public function testDeserialize(EventStub $event, string $serialized): void
+    {
+        static::assertEquals(
+            $event->getPayload(),
+            (new JsonEventSerializer())->fromSerialized($serialized)->getPayload()
+        );
+    }
 
-        $deserialized = (new JsonEventSerializer())->fromSerialized($serialized);
-
-        static::assertEquals($event, $deserialized);
+    /**
+     * @dataProvider queuedSerializationProvider
+     *
+     * @param QueuedEvent $event
+     * @param string      $serialized
+     */
+    public function testDeserializeQueued(QueuedEvent $event, string $serialized): void
+    {
+        static::assertEquals(
+            $event->getWrappedEvent()->getPayload(),
+            (new JsonEventSerializer())->fromSerialized($serialized)->getWrappedEvent()->getPayload()
+        );
     }
 
     public function testEmptyDeserialization(): void
@@ -78,7 +98,7 @@ class JsonEventSerializerTest extends TestCase
 
         (new JsonEventSerializer())
             ->fromSerialized('{"class":"Gears\\\\Event\\\\Async\\\\Tests\\\\Stub\\\\EventStub",'
-                . '"payload":"1234","createdAt":"2018-01-01T00:00:00.000000+00:00","attributes":{}}');
+                . '"payload":"1234","createdAt":"2020-01-01T00:00:00.000000+00:00","attributes":{}}');
     }
 
     public function testMissingClassDeserialization(): void
@@ -88,7 +108,7 @@ class JsonEventSerializerTest extends TestCase
 
         (new JsonEventSerializer())
             ->fromSerialized('{"class":"Gears\\\\Unknown",'
-            . '"payload":{"identifier":"1234"},"createdAt":"2018-01-01T00:00:00.000000+00:00","attributes":{}}');
+            . '"payload":{"parameter":"1234"},"createdAt":"2020-01-01T00:00:00.000000+00:00","attributes":{}}');
     }
 
     public function testWrongClassTypeDeserialization(): void
@@ -98,6 +118,49 @@ class JsonEventSerializerTest extends TestCase
 
         (new JsonEventSerializer())
             ->fromSerialized('{"class":"Gears\\\\Event\\\\Async\\\\Serializer\\\\JsonEventSerializer",'
-                . '"payload":{"identifier":"1234"},"createdAt":"2018-01-01T00:00:00.000000+00:00","attributes":{}}');
+                . '"payload":{"parameter":"1234"},"createdAt":"2020-01-01T00:00:00.000000+00:00","attributes":{}}');
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function serializationProvider(): array
+    {
+        $stub = EventStub::instance(['parameter' => 'value']);
+        $stub = $stub->withAddedMetadata(['meta' => 'data']);
+
+        $serialized = '{"class":"Gears\\\Event\\\Async\\\Tests\\\Stub\\\EventStub",'
+            . '"payload":{"parameter":"value"},'
+            . '"createdAt":"2020-01-01T00:00:00.000000+00:00",'
+            . '"attributes":{"metadata":{"meta":"data"}}}';
+
+        return [[$stub, $serialized]];
+    }
+
+    /**
+     * @return mixed[][]
+     */
+    public function queuedSerializationProvider(): array
+    {
+        $stub = EventStub::instance(['parameter' => 'value']);
+        $stub = $stub->withAddedMetadata(['meta' => 'data']);
+
+        $event = new QueuedEvent($stub);
+        $reflection = new \ReflectionClass($event);
+        $property = $reflection->getProperty('createdAt');
+        $property->setAccessible(true);
+        $property->setValue($event, \DateTimeImmutable::createFromFormat(\DateTime::ATOM, '2020-01-01T00:00:00Z'));
+
+        $serialized = '{"class":"Gears\\\\Event\\\\Async\\\\QueuedEvent","payload":{'
+            . '"wrappedEvent":"{'
+            . '\"class\":\"Gears\\\\\\\\Event\\\\\\\\Async\\\\\\\\Tests\\\\\\\\Stub\\\\\\\\EventStub\",'
+            . '\"payload\":{\"parameter\":\"value\"},'
+            . '\"createdAt\":\"2020-01-01T00:00:00.000000+00:00\",'
+            . '\"attributes\":{\"metadata\":{\"meta\":\"data\"}}}'
+            . '"},'
+            . '"createdAt":"2020-01-01T00:00:00.000000+00:00",'
+            . '"attributes":{"metadata":[]}}';
+
+        return [[$event, $serialized]];
     }
 }

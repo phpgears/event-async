@@ -24,17 +24,18 @@ class ParameterEventDiscriminatorTest extends TestCase
 {
     public function testDiscriminateParameter(): void
     {
-        $discriminator = new ParameterEventDiscriminator('identifier');
+        $discriminator = new ParameterEventDiscriminator('parameter');
+        static::assertTrue($discriminator->shouldEnqueue(EventStub::instance(['parameter' => null])));
 
-        static::assertTrue($discriminator->shouldEnqueue(EventStub::instance(['identifier' => null])));
+        $discriminator = new ParameterEventDiscriminator('unknown');
         static::assertFalse($discriminator->shouldEnqueue(EventStub::instance([])));
     }
 
     public function testDiscriminateParameterValue(): void
     {
-        $discriminator = new ParameterEventDiscriminator('identifier', '1234');
+        $discriminator = new ParameterEventDiscriminator('parameter', 'value');
 
-        static::assertTrue($discriminator->shouldEnqueue(EventStub::instance(['identifier' => '1234'])));
-        static::assertFalse($discriminator->shouldEnqueue(EventStub::instance(['identifier' => true])));
+        static::assertTrue($discriminator->shouldEnqueue(EventStub::instance(['parameter' => 'value'])));
+        static::assertFalse($discriminator->shouldEnqueue(EventStub::instance(['parameter' => true])));
     }
 }

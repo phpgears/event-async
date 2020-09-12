@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Serializer;
 
+use Gears\Event\Async\QueuedEvent;
 use Gears\Event\Async\Serializer\Exception\EventSerializationException;
 use Gears\Event\Event;
 
@@ -27,7 +28,6 @@ final class JsonEventSerializer implements EventSerializer
         | \JSON_PRESERVE_ZERO_FRACTION
         | \JSON_HEX_AMP
         | \JSON_HEX_APOS
-        | \JSON_HEX_QUOT
         | \JSON_HEX_TAG;
 
     /**
@@ -37,22 +37,19 @@ final class JsonEventSerializer implements EventSerializer
     private const JSON_DECODE_OPTIONS = \JSON_BIGINT_AS_STRING;
 
     /**
-     * \DateTime::RFC3339_EXTENDED cannot handle microseconds on \DateTimeImmutable::createFromFormat.
-     *
-     * @see https://stackoverflow.com/a/48949373
-     */
-    private const DATE_RFC3339_EXTENDED = 'Y-m-d\TH:i:s.uP';
-
-    /**
      * {@inheritdoc}
      */
     public function serialize(Event $event): string
     {
+        $payload = $event instanceof QueuedEvent
+            ? ['wrappedEvent' => $this->serialize($event->getWrappedEvent())]
+            : $event->toArray();
+
         $serialized = \json_encode(
             [
                 'class' => \get_class($event),
-                'payload' => $event->getPayload(),
-                'createdAt' => $event->getCreatedAt()->format(static::DATE_RFC3339_EXTENDED),
+                'payload' => $payload,
+                'createdAt' => $event->getCreatedAt()->format(Event::DATE_RFC3339_EXTENDED),
                 'attributes' => $this->getSerializationAttributes($event),
             ],
             static::JSON_ENCODE_OPTIONS
@@ -105,10 +102,14 @@ final class JsonEventSerializer implements EventSerializer
             ));
         }
 
-        $createdAt = \DateTimeImmutable::createFromFormat(self::DATE_RFC3339_EXTENDED, $createdAt);
+        $createdAt = \DateTimeImmutable::createFromFormat(Event::DATE_RFC3339_EXTENDED, $createdAt);
 
         // @codeCoverageIgnoreStart
         try {
+            if ($eventClass === QueuedEvent::class) {
+                $payload = ['wrappedEvent' => $this->fromSerialized($payload['wrappedEvent'])];
+            }
+
             /* @var Event $eventClass */
             return $eventClass::reconstitute($payload, $createdAt, $this->getDeserializationAttributes($attributes));
         } catch (\Exception $exception) {

@@ -15,7 +15,7 @@ namespace Gears\Event\Async\Discriminator;
 
 use Gears\Event\Event;
 
-final class ArrayEventDiscriminator implements EventDiscriminator
+final class LocatorEventDiscriminator implements EventDiscriminator
 {
     /**
      * @var string[]

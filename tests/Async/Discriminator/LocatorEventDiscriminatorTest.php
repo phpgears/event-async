@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace Gears\Event\Async\Tests\Discriminator;
 
-use Gears\Event\Async\Discriminator\ArrayEventDiscriminator;
+use Gears\Event\Async\Discriminator\LocatorEventDiscriminator;
 use Gears\Event\Async\Tests\Stub\EventStub;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Array event discriminator test.
+ * Array locator event discriminator test.
  */
-class ArrayEventDiscriminatorTest extends TestCase
+class LocatorEventDiscriminatorTest extends TestCase
 {
     public function testDiscriminate(): void
     {
@@ -31,7 +31,7 @@ class ArrayEventDiscriminatorTest extends TestCase
             ->method('getEventType')
             ->will(static::returnValue(\get_class($eventMock)));
         /** @var \Gears\Event\Event $eventMock */
-        $discriminator = new ArrayEventDiscriminator([\get_class($eventMock)]);
+        $discriminator = new LocatorEventDiscriminator([\get_class($eventMock)]);
 
         static::assertTrue($discriminator->shouldEnqueue($eventMock));
         static::assertFalse($discriminator->shouldEnqueue(EventStub::instance()));

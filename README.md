@@ -12,7 +12,7 @@
 
 # Async Event
 
-Async decorator for Event bus
+Event bus utilities for asynchronous bus handling
 
 ## Installation
 
@@ -30,72 +30,34 @@ Require composer autoload file
 require './vendor/autoload.php';
 ```
 
-### Asynchronous Events Bus
-
-Event bus decorator to handle events asynchronously
-
-#### Enqueue
-
-```php
-use Gears\Event\Async\AsyncEventBus;
-use Gears\Event\Async\Serializer\JsonEventSerializer;
-use Gears\Event\Async\Discriminator\ParameterEventDiscriminator;
-
-/* @var \Gears\Event\EventBus $eventBus */
-
-/* @var Gears\Event\Async\EventQueue $eventQueue */
-$eventQueue = new CustomEventQueue(new JsonEventSerializer());
-
-$asyncEventBus new AsyncEventBus(
-    $eventBus,
-    $eventQueue,
-    new ParameterEventDiscriminator('async')
-);
-
-$asyncEvent = new CustomEvent(['async' => true]);
-
-$asyncEventBus->dispatch($asyncEvent);
-```
-
-Please mind that enqueuing process is independent of event handling, does not prevent the event from being handled. Enqueuing an event happens in first place and then the event is dispatched as normal to the wrapped event bus
-
-#### Dequeue
-
-This part is highly dependent on the message queue of your choosing, though event serializers can be used to deserialize queue message
-
-This is just an example of the process
-
-```php
-use Gears\Event\Async\ReceivedEvent;
-use Gears\Event\Async\Serializer\JsonEventSerializer;
-
-/* @var \Gears\Event\Async\AsyncEventBus $asyncEventBus */
-/* @var your_message_queue_manager $queue */
-
-$serializer = new JsonEventSerializer();
-
-while (true) {
-  $message = $queue->getMessage();
-
-  if ($message !== null) {
-    $event = new ReceivedEvent($serializer->fromSerialized($message));
-
-    $asyncEventBus->dispatch($event);
-  }
-}
-```
-
-Deserialized events should be wrapped in `Gears\Event\Async\ReceivedEvent` in order to avoid infinite loops should you decide to dispatch the events to an async event bus. **If you decide to use a non-async bus on the dequeue side you don't need to do this wrapping**
-
 ### Discriminator
 
 Discriminates whether a event should or should not be enqueued based on arbitrary conditions
 
-Three discriminators are provided in this package
+Three discriminators come bundled in this package
 
-* `Gears\Event\Async\Discriminator\ArrayEventDiscriminator` selects events if they are present in the array provided
+* `Gears\Event\Async\Discriminator\LocatorEventDiscriminator` selects events if they are present in the array provided
 * `Gears\Event\Async\Discriminator\ClassEventDiscriminator` selects events by their class or interface
  * `Gears\Event\Async\Discriminator\ParameterEventDiscriminator` selects events by the presence of a event payload parameter (optionally by its value as well)
+
+### Serializer
+
+Abstract event queue uses serializers to do event serialization, so it can be sent to the message queue as a string message
+
+Two serializers are available out of the box
+
+* `Gears\Event\Async\Serializer\JsonEventSerializer`, is a general serializer allowing maximum compatibility in case of events being handled by other systems
+* `Gears\Event\Async\Serializer\NativePhpEventSerializer`, is a PHP centric serializer employing PHP native serialization mechanism
+
+You can create your own serializer if the one provided does not fit your needs, for example by using _JMS serializer_, by implementing `Gears\Event\Async\Serializer\EventSerializer` interface
+
+### Distributed systems
+
+On distributed systems, such as micro-service systems, events can be dequeued on a completely different part of the system, this part should of course know about events and their contents but could eventually not have access to the original event class itself and thus a transformation is needed
+
+This can be solved either by transforming messages coming out from the message queue before handing them to the event serializer, or better by creating your custom `Gears\Event\Async\Serializer\EventSerializer` encapsulating this transformation
+
+In most cases the transformation will be as simple as changing the event class to the one the dequeueing side knows. At the end events payload will most probably stay the same
 
 ### Event queue
 
@@ -105,6 +67,7 @@ No implementation is provided in this package but an abstract base class so you 
 
 ```php
 use Gears\Event\Async\AbstractEventQueue;
+use Gears\Event\Event;
 
 class CustomEventQueue extends AbstractEventQueue
 {
@@ -115,25 +78,7 @@ class CustomEventQueue extends AbstractEventQueue
 }
 ```
 
-You can use [event-async-queue-interop](https://github.com/phpgears/event-async-queue-interop) that uses [queue-interop](https://github.com/queue-interop/queue-interop) for enqueuing messages
-
-### Serializer
-
-Abstract event queue uses serializers to do event serialization so it can be sent to the message queue as a string message
-
-`Gears\Event\Async\Serializer\JsonEventSerializer` is directly provided as a general serializer allowing maximum compatibility in case of events being handled by other systems
-
-You can create your own serializer if the one provided does not fit your needs, for example by using _JMS serializer_, by implementing `Gears\Event\Async\Serializer\EventSerializer` interface
-
-### Distributed systems
-
-On distributed systems, such as micro-service systems, events can be dequeued on a completely different part of the system, this part should of course know about events triggered and their contents but could eventually not have access to the event class itself
-
-For example in the context of Domain Events on DDD a bounded context could react to events triggered by another completely different bounded context and of course won't be able to deserialize the original event as it is located on another domain
-
-This can be solved in one of two ways, transform messages coming out from the message queue before handing them to the event serializer, or better by creating a custom `Gears\Event\Async\Serializer\EventSerializer` encapsulating this transformation
-
-_Transformation can be as simple as changing event class to be reconstituted_
+You can require [event-async-queue-interop](https://github.com/phpgears/event-async-queue-interop) that uses [queue-interop](https://github.com/queue-interop/queue-interop) for enqueuing messages
 
 ## Contributing
 
